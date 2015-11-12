@@ -76,6 +76,7 @@ void *create_directory_config(apr_pool_t *mp, char *path)
     #ifdef WITH_YAJL
     dcfg->auditlog_format = NOT_SET;
     #endif
+    dcfg->skip_noauditlog = NOT_SET;
     dcfg->max_rule_time = NOT_SET;
     dcfg->auditlog_dirperms = NOT_SET;
     dcfg->auditlog_fileperms = NOT_SET;
@@ -510,6 +511,8 @@ void *merge_directory_configs(apr_pool_t *mp, void *_parent, void *_child)
     merged->auditlog_format = (child->auditlog_format == NOT_SET
         ? parent->auditlog_format : child->auditlog_format);
     #endif
+    merged->skip_noauditlog = (child->skip_noauditlog == NOT_SET
+        ? parent->skip_noauditlog : child->skip_noauditlog);
     merged->auditlog_storage_dir = (child->auditlog_storage_dir == NOT_SET_P
         ? parent->auditlog_storage_dir : child->auditlog_storage_dir);
     merged->auditlog_parts = (child->auditlog_parts == NOT_SET_P
@@ -677,6 +680,7 @@ void init_directory_config(directory_config *dcfg)
     #ifdef WITH_YAJL
     if (dcfg->auditlog_format == NOT_SET) dcfg->auditlog_format = AUDITLOGFORMAT_NATIVE;
     #endif
+    if (dcfg->skip_noauditlog == NOT_SET) dcfg->skip_noauditlog = 0;
     if (dcfg->max_rule_time == NOT_SET) dcfg->max_rule_time = 0;
     if (dcfg->auditlog_dirperms == NOT_SET) dcfg->auditlog_dirperms = CREATEMODE_DIR;
     if (dcfg->auditlog_fileperms == NOT_SET) dcfg->auditlog_fileperms = CREATEMODE;
@@ -1308,6 +1312,14 @@ static const char *cmd_audit_log_mode(cmd_parms *cmd, void *_dcfg,
     return NULL;
 }
 #endif
+
+static const char *cmd_audit_skip_noauditlog(cmd_parms *cmd, void *_dcfg, int flag)
+{
+    directory_config *dcfg = (directory_config *)_dcfg;
+    if (dcfg == NULL) return NULL;
+    dcfg->skip_noauditlog = flag;
+    return NULL;
+}
 
 static const char *cmd_audit_log_dirmode(cmd_parms *cmd, void *_dcfg,
         const char *p1)
@@ -3259,6 +3271,14 @@ const command_rec module_directives[] = {
         "whether to emit audit log data in native format or JSON"
     ),
 #endif
+
+    AP_INIT_FLAG (
+        "SecAuditLogSkipNoauditlog",
+        cmd_audit_skip_noauditlog,
+        NULL,
+        CMD_SCOPE_ANY,
+        "Do not write rules that explicitly set noauditlog to the audit log"
+    ),
 
     AP_INIT_TAKE1 (
         "SecAuditLogStorageDir",

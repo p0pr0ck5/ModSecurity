@@ -2710,8 +2710,13 @@ static int execute_operator(msre_var *var, msre_rule *rule, modsec_rec *msr,
                 log_escape(msr->mp, full_varname));
         }
 
-        /* Save the rules that match */
-        *(const msre_rule **)apr_array_push(msr->matched_rules) = rule;
+        /* Save the rules that match, given one of the following:
+            - The rule's actionset doesn't contain 'noauditlog'
+            - The rule's actionset contains noauditlog AND SecAuditLogSkipNoauditlog is not enabled
+         **/
+        if (rule->actionset->auditlog != 0 || msr->txcfg->skip_noauditlog == 0) {
+            *(const msre_rule **)apr_array_push(msr->matched_rules) = rule;
+        }
 
         /* Save the last matched var data */
         if(var != NULL && msr != NULL)   {

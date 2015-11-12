@@ -523,6 +523,9 @@ struct directory_config {
     int                  auditlog_format;
 #endif
 
+    /* Whether to ignore writing rules to the audit log that explicity set noauditlog */
+    int					 skip_noauditlog;
+
     /* Mode for audit log directories and files */
     apr_fileperms_t      auditlog_dirperms;
     apr_fileperms_t      auditlog_fileperms;
