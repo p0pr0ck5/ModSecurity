@@ -279,9 +279,6 @@ static void internal_log_ex(request_rec *r, directory_config *dcfg, modsec_rec *
 
         /* Add this message to the list. */
         if (msr != NULL) {
-            /* Force relevency if this is an alert */
-            msr->is_relevant++;
-
             *(const char **)apr_array_push(msr->alerts) = apr_pstrdup(msr->mp, str1);
         }
     }
