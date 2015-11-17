@@ -658,13 +658,15 @@ static apr_status_t modsecurity_process_phase_logging(modsec_rec *msr) {
 
     /* Is this request relevant for logging purposes? */
     if (msr->is_relevant == 0) {
-        /* Check the status */
-        msr->is_relevant += is_response_status_relevant(msr, msr->r->status);
+        /* Check the status, but do not write an audit log entry if there are no matched rules */
+        if (msr->matched_rules->nelts > 0) {
+            msr->is_relevant += is_response_status_relevant(msr, msr->r->status);
+        }
 
         /* If we processed two requests and statuses are different then
          * check the other status too.
          */
-        if (msr->r_early->status != msr->r->status) {
+        if (msr->r_early->status != msr->r->status && msr->matched_rules->nelts > 0) {
             msr->is_relevant += is_response_status_relevant(msr, msr->r_early->status);
         }
     }
