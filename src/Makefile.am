@@ -41,7 +41,9 @@ pkginclude_HEADERS = \
 	../headers/modsecurity/modsecurity.h \
 	../headers/modsecurity/rule.h \
 	../headers/modsecurity/rules.h \
-	../headers/modsecurity/rules_properties.h
+	../headers/modsecurity/rules_properties.h \
+	../headers/modsecurity/rules_exceptions.h
+
 
 
 libmodsecurity_includesub_HEADERS = \
@@ -102,6 +104,7 @@ ACTIONS = \
 	actions/ctl_request_body_processor_xml.cc \
 	actions/init_col.cc \
 	actions/deny.cc \
+	actions/log.cc \
 	actions/log_data.cc \
 	actions/maturity.cc \
 	actions/msg.cc \
@@ -243,6 +246,7 @@ libmodsecurity_la_SOURCES = \
 	macro_expansion.cc \
 	rule.cc \
 	unique_id.cc \
+	rules_exceptions.cc \
 	${BODY_PROCESSORS} \
 	${ACTIONS} \
 	${COLLECTION} \

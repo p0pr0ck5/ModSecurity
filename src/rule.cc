@@ -102,6 +102,7 @@ Rule::Rule(Operator *_op,
     m_unconditional(false),
     m_secmarker(false),
     m_marker(""),
+    m_maturity(0),
     m_referenceCount(0),
     m_fileName(fileName),
     m_lineNumber(lineNumber) {
@@ -282,6 +283,7 @@ bool Rule::evaluate(Transaction *trasn) {
     }
 
     ruleMessage = new modsecurity::RuleMessage(this, m_log_message);
+
 #ifndef NO_LOGS
     std::string eparam = MacroExpansion::expand(this->op->param, trasn);
 
@@ -531,6 +533,10 @@ bool Rule::evaluate(Transaction *trasn) {
             delete e.back();
             e.pop_back();
         }
+    }
+
+    if (ruleMessage->m_saveMessage == true) {
+        trasn->serverLog(ruleMessage->errorLog(trasn));
     }
 
     if ((!m_log_message.empty() || !m_log_data.empty())
